@@ -14,7 +14,7 @@ self-care — never restriction or guilt.
 
 | Path | What it is |
 | --- | --- |
-| **[`ios/Nibble`](ios/Nibble)** | The **native iOS app** (SwiftUI). The product. Open `ios/Nibble/Nibble.xcodeproj` in Xcode 15+ and press ⌘R. |
+| **[`ios/Nibble`](ios/Nibble)** | The **native iOS app** (SwiftUI). The product. On a Mac: `./ios/run-simulator.sh` builds and launches it in the iOS Simulator, or open `ios/Nibble/Nibble.xcodeproj` in Xcode 15+ and press ⌘R. |
 | **[`web-prototype`](web-prototype)** | The original self-contained web prototype (vanilla HTML/CSS/JS). Kept as a runnable design reference. |
 
 The native iOS app is a full SwiftUI rewrite of the prototype — same supportive

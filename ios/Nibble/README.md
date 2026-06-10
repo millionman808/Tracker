@@ -21,6 +21,14 @@ around consistency and self-care — never restriction or guilt.
 
 ## Open & run
 
+One command from the repo root (builds and launches in the iOS Simulator):
+
+```bash
+./ios/run-simulator.sh
+```
+
+Or the manual way:
+
 ```bash
 open ios/Nibble/Nibble.xcodeproj
 ```
