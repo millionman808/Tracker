@@ -66,7 +66,7 @@ enum GameData {
         ShopItem(id: "coz_lamp",  type: .decor, name: "Warm Lamp",  price: 85,  theme: "cozy", desc: "Soft evening glow.", emoji: "💡", slot: .floorRight),
         ShopItem(id: "coz_rug",   type: .decor, name: "Round Rug",  price: 100, theme: "cozy", desc: "Toes love it.",      emoji: "🟫", slot: .rug),
         ShopItem(id: "coz_books", type: .decor, name: "Book Stack", price: 95,  theme: "cozy", desc: "Bedtime stories.",   emoji: "📚", slot: .floorLeft),
-        ShopItem(id: "coz_frame", type: .decor, name: "Art Frame",  price: 130, theme: "cozy", desc: "A little masterpiece.", emoji: "🖼️", slot: .shelf, pro: true)
+        ShopItem(id: "coz_frame", type: .decor, name: "Art Frame",  price: 130, theme: "cozy", desc: "A little masterpiece.", emoji: "🖼️", pro: true, slot: .shelf)
     ]
 
     static let shopThemes: [ShopTheme] = [
