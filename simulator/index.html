@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nibble — iPhone Simulator</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%B1%3C/text%3E%3C/svg%3E" />
+<style>
+  :root {
+    --bezel: #1c1d22;
+    --edge: linear-gradient(145deg, #8a8d94, #4a4c52 30%, #6e7077 60%, #3d3f44);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: ui-rounded, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(1200px 800px at 70% -10%, #2e4636, #16201a 60%, #0d1310);
+    display: flex; flex-direction: column; align-items: center;
+    min-height: 100vh; overflow: hidden; color: #cfe3d4;
+  }
+
+  /* ---- top controls ---- */
+  .controls {
+    display: flex; gap: 10px; align-items: center;
+    padding: 14px 16px 6px; flex-wrap: wrap; justify-content: center;
+  }
+  .controls .title {
+    font-weight: 800; letter-spacing: .4px; margin-right: 8px;
+    color: #9fd6a8; font-size: 15px;
+  }
+  .ctl {
+    background: rgba(255,255,255,.08);
+    color: #d9eadd; border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: background .15s ease;
+  }
+  .ctl:hover { background: rgba(255,255,255,.16); }
+  .ctl.active { background: #5fa86a; border-color: #5fa86a; color: #fff; }
+  .hint { font-size: 12px; opacity: .55; padding: 0 16px 4px; text-align: center; }
+
+  /* ---- stage ---- */
+  .stage { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
+
+  /* ---- device ---- */
+  .device {
+    position: relative;
+    border-radius: 64px;
+    padding: 4px;                      /* titanium edge */
+    background: var(--edge);
+    box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 6px 20px rgba(0,0,0,.4);
+    transform-origin: center center;
+  }
+  .device-inner {
+    position: relative;
+    border-radius: 60px;
+    background: var(--bezel);
+    padding: 10px;                     /* black bezel */
+    overflow: hidden;
+  }
+  .screen {
+    position: relative;
+    width: 393px; height: 852px;
+    border-radius: 50px;
+    overflow: hidden;
+    background: #f4faf2;
+    display: flex; flex-direction: column;
+  }
+  .screen iframe {
+    flex: 1; width: 100%;
+    border: 0; display: block;
+  }
+
+  /* hardware buttons */
+  .btn-side {
+    position: absolute; background: linear-gradient(90deg,#3a3c41,#6e7077,#3a3c41);
+    border-radius: 3px; z-index: -1;
+  }
+  .btn-power  { right: -3px; top: 230px; width: 7px; height: 96px; }
+  .btn-volup  { left: -3px;  top: 180px; width: 7px; height: 62px; }
+  .btn-voldn  { left: -3px;  top: 254px; width: 7px; height: 62px; }
+  .btn-action { left: -3px;  top: 120px; width: 7px; height: 34px; }
+
+  /* status bar strip (the app lays out below it, like real iOS safe areas) */
+  .statusbar {
+    position: relative; flex: 0 0 54px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 30px 0;
+    z-index: 50; pointer-events: none;
+    font-size: 15px; font-weight: 700; color: #3a4a3f;
+  }
+  .statusbar .right { display: flex; align-items: center; gap: 7px; }
+  .sig { display: inline-flex; align-items: flex-end; gap: 1.5px; height: 11px; }
+  .sig i { width: 3px; background: #3a4a3f; border-radius: 1px; display: block; }
+  .sig i:nth-child(1){height:4px} .sig i:nth-child(2){height:6px}
+  .sig i:nth-child(3){height:8px} .sig i:nth-child(4){height:11px}
+  .wifi { font-size: 13px; line-height: 1; }
+  .batt {
+    position: relative; width: 25px; height: 12px;
+    border: 1.5px solid rgba(58,74,63,.55); border-radius: 4px; padding: 1.5px;
+  }
+  .batt::after {
+    content:''; position:absolute; right:-4px; top:3px; width:2px; height:5px;
+    background: rgba(58,74,63,.55); border-radius: 0 2px 2px 0;
+  }
+  .batt b { display:block; height:100%; width:78%; background:#3a4a3f; border-radius:1.5px; }
+
+  /* dynamic island */
+  .island {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 122px; height: 35px; border-radius: 20px; background: #000;
+    z-index: 60; pointer-events: none;
+    box-shadow: inset 0 0 2px rgba(255,255,255,.08);
+  }
+  .island::after { /* camera lens */
+    content:''; position:absolute; right:11px; top:50%; transform: translateY(-50%);
+    width: 12px; height: 12px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #1d2a4d, #000 70%);
+  }
+
+  /* home indicator */
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 140px; height: 5px; border-radius: 3px; background: rgba(0,0,0,.85);
+    z-index: 60; pointer-events: none;
+  }
+
+  /* ---- iPhone SE variant ---- */
+  .device.se .device-inner { border-radius: 44px; padding: 10px; }
+  .device.se { border-radius: 48px; }
+  .device.se .screen { width: 375px; height: 667px; border-radius: 4px; margin: 64px 6px; }
+  .device.se .island, .device.se .home-indicator { display: none; }
+  .device.se .statusbar { flex-basis: 24px; padding: 6px 14px 0; font-size: 12.5px; }
+  .device.se .home-btn {
+    display: block;
+    position: absolute; bottom: 13px; left: 50%; transform: translateX(-50%);
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2.5px solid #3c3e44; background: radial-gradient(circle at 35% 30%, #2a2c31, #141519);
+    cursor: pointer; z-index: 5;
+  }
+  .home-btn { display: none; }
+
+  .se-only { display: none; }
+</style>
+</head>
+<body>
+  <div class="controls">
+    <span class="title">🌱 Nibble Simulator</span>
+    <button class="ctl active" id="dev-pro">iPhone 15 Pro</button>
+    <button class="ctl" id="dev-se">iPhone SE</button>
+    <button class="ctl" id="reset">⟲ Reset app data</button>
+    <button class="ctl" id="newtab">Open app full-page ↗</button>
+  </div>
+  <div class="hint">This simulates the device shell — the app inside is the real Nibble. Serve over http (see simulator/README) so progress saves.</div>
+
+  <div class="stage">
+    <div class="device" id="device">
+      <span class="btn-side btn-action"></span>
+      <span class="btn-side btn-volup"></span>
+      <span class="btn-side btn-voldn"></span>
+      <span class="btn-side btn-power"></span>
+      <div class="device-inner">
+        <div class="screen">
+          <div class="statusbar">
+            <span id="clock">9:41</span>
+            <span class="right">
+              <span class="sig"><i></i><i></i><i></i><i></i></span>
+              <span class="wifi">&#x1F4F6;</span>
+              <span class="batt"><b></b></span>
+            </span>
+          </div>
+          <div class="island"></div>
+          <iframe id="app" src="../web-prototype/index.html" title="Nibble app"></iframe>
+          <div class="home-indicator"></div>
+        </div>
+        <button class="home-btn" id="homebtn" title="Home"></button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+  const device = document.getElementById('device');
+  const iframe = document.getElementById('app');
+
+  // ---- live clock ----
+  function tick() {
+    const d = new Date();
+    let h = d.getHours() % 12; if (h === 0) h = 12;
+    document.getElementById('clock').textContent =
+      h + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  tick(); setInterval(tick, 15000);
+
+  // ---- scale device to fit the window ----
+  function fit() {
+    const stage = document.querySelector('.stage');
+    const avail = { w: stage.clientWidth - 40, h: stage.clientHeight - 30 };
+    const rect = { w: device.offsetWidth, h: device.offsetHeight };
+    const scale = Math.min(1, avail.w / rect.w, avail.h / rect.h);
+    device.style.transform = `scale(${scale})`;
+  }
+  window.addEventListener('resize', fit);
+  // refit after layout settles and on device switch
+  setTimeout(fit, 50);
+
+  // ---- device switching ----
+  const proBtn = document.getElementById('dev-pro');
+  const seBtn = document.getElementById('dev-se');
+  function setDevice(se) {
+    device.classList.toggle('se', se);
+    proBtn.classList.toggle('active', !se);
+    seBtn.classList.toggle('active', se);
+    setTimeout(fit, 50);
+  }
+  proBtn.addEventListener('click', () => setDevice(false));
+  seBtn.addEventListener('click', () => setDevice(true));
+
+  // ---- home button (SE) just bounces back to the Home tab ----
+  document.getElementById('homebtn').addEventListener('click', () => {
+    try { iframe.contentWindow.Nibble.go('home'); } catch (e) { /* cross-origin */ }
+  });
+
+  // ---- reset app data ----
+  document.getElementById('reset').addEventListener('click', () => {
+    if (!confirm('Erase the Sprout, streak, Dewdrops and decorations?')) return;
+    try {
+      iframe.contentWindow.localStorage.removeItem('nibble.save.v1');
+      iframe.contentWindow.location.reload();
+    } catch (e) {
+      alert('Could not reach app storage. Serve the repo over http (python3 -m http.server) instead of opening the file directly.');
+    }
+  });
+
+  // ---- open the raw app in a new tab ----
+  document.getElementById('newtab').addEventListener('click', () => {
+    window.open('../web-prototype/index.html', '_blank');
+  });
+})();
+</script>
+</body>
+</html>

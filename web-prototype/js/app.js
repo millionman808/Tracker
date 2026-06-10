@@ -284,9 +284,10 @@
       c: (parseFloat($('#f-c') ? $('#f-c').value : 0) || 0) * serv,
       f: (parseFloat($('#f-f') ? $('#f-f').value : 0) || 0) * serv
     };
-    doLog(food);
     e.target.reset();
-    $('#f-serv').value = 1;
+    const servEl = $('#f-serv');
+    if (servEl) servEl.value = 1;
+    doLog(food); // navigates home, so the form is reset first
   }
 
   function quickLog(food) {
