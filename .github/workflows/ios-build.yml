@@ -24,6 +24,14 @@ jobs:
           sudo xcode-select -s "$(ls -d /Applications/Xcode_16* | sort -V | tail -1)/Contents/Developer" || true
           xcodebuild -version
 
+      - name: Pick a simulator device
+        run: |
+          UDID=$(xcrun simctl list devices available | grep -E '^\s*iPhone' | tail -1 \
+                 | grep -Eo '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}')
+          NAME=$(xcrun simctl list devices available | grep "$UDID" | sed -E 's/^ *//; s/ \(.*//')
+          echo "Picked: $NAME ($UDID)"
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+
       - name: Build Nibble (Debug, iphonesimulator)
         run: |
           set -o pipefail
@@ -31,10 +39,33 @@ jobs:
             -project ios/Nibble/Nibble.xcodeproj \
             -scheme Nibble \
             -configuration Debug \
-            -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "id=$UDID" \
+            -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee build.log
+
+      - name: Launch in the iOS Simulator and capture it running
+        run: |
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time "9:41" \
+            --batteryState charged --batteryLevel 100 --cellularBars 4 || true
+          APP=DerivedData/Build/Products/Debug-iphonesimulator/Nibble.app
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" com.nibble.sproutsnacks
+          sleep 12   # let the UI settle and the Sprout start animating
+          mkdir -p capture
+          xcrun simctl io "$UDID" screenshot capture/nibble-running.png
+          # short clip of the idle animation (best-effort)
+          ( xcrun simctl io "$UDID" recordVideo --codec h264 capture/nibble-running.mp4 & \
+            VID=$!; sleep 8; kill -INT "$VID"; wait "$VID" ) || true
+          ls -la capture
+
+      - name: Upload simulator capture
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-capture
+          path: capture/
+          if-no-files-found: warn
 
       - name: Upload build log on failure
         if: failure()
