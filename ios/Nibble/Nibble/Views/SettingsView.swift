@@ -88,7 +88,7 @@ struct SettingsView: View {
                     .onChange(of: goalText) { _, v in
                         store.setGoal(v.isEmpty ? nil : Int(v))
                     }
-                Text("Going over your goal never upsets your Sprout. Logging is the win. 🌱")
+                Text("Going over your goal never upsets your Sprout. Logging is the win.")
                     .font(.system(size: 12, design: .rounded)).foregroundStyle(Theme.inkSoft)
 
                 Text("Daily water goal (cups)")

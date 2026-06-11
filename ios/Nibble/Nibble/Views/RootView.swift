@@ -79,14 +79,20 @@ private struct TopBar: View {
     @Environment(AppStore.self) private var store
     var body: some View {
         HStack {
-            Pill { Text("🔥"); Text("\(store.state.streak.current)") }
+            Pill {
+                Image(systemName: "flame.fill").foregroundStyle(Color(hex: "F4793B").gradient)
+                Text("\(store.state.streak.current)")
+            }
             Spacer()
             Text("Nibble")
                 .font(.system(size: 17, weight: .heavy, design: .rounded))
                 .foregroundStyle(Theme.greenD)
                 .tracking(0.5)
             Spacer()
-            Pill { Text("💧"); Text("\(store.state.dewdrops)") }
+            Pill {
+                Image(systemName: "drop.fill").foregroundStyle(Theme.drop.gradient)
+                Text("\(store.state.dewdrops)")
+            }
         }
         .padding(.horizontal, 18)
         .padding(.top, 6)
@@ -191,8 +197,7 @@ struct CelebrationSheet: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Text(milestone.icon)
-                .font(.system(size: 64))
+            IconChip(symbol: milestone.icon, tint: Color(hex: milestone.tintHex), size: 84)
                 .offset(y: bounce ? -8 : 0)
                 .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: bounce)
             Text("Milestone!").font(.system(size: 22, weight: .heavy, design: .rounded))
@@ -203,7 +208,7 @@ struct CelebrationSheet: View {
                 .font(.system(size: 15, design: .rounded))
                 .foregroundStyle(Theme.inkSoft)
                 .multilineTextAlignment(.center)
-            Text("+\(GameData.Rewards.milestone) 💧 Dewdrops")
+            Label("+\(GameData.Rewards.milestone) Dewdrops", systemImage: "drop.fill")
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundStyle(Theme.drop)
             Button("Yay!") { dismiss() }

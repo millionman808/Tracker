@@ -124,6 +124,25 @@ struct ProButtonStyle: ButtonStyle {
     }
 }
 
+// MARK: - Icon chip (SF Symbol on a tinted rounded square — the app's icon language)
+
+struct IconChip: View {
+    let symbol: String
+    let tint: Color
+    var size: CGFloat = 34
+    var body: some View {
+        Image(systemName: symbol)
+            .font(.system(size: size * 0.44, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(width: size, height: size)
+            .background(
+                RoundedRectangle(cornerRadius: size * 0.3, style: .continuous)
+                    .fill(tint.gradient)
+            )
+            .shadow(color: tint.opacity(0.35), radius: 3, y: 2)
+    }
+}
+
 // MARK: - Section title
 
 struct ScreenTitle: View {

@@ -43,13 +43,15 @@ struct ShopView: View {
                 }
 
                 if !store.state.pro {
-                    Button("✨ Unlock Pro (demo)") {
+                    Button {
                         store.setPro(true)
-                        bus.say("✨ Pro unlocked (demo mode)")
+                        bus.say("Pro unlocked (demo mode)")
+                    } label: {
+                        Label("Unlock Pro (demo)", systemImage: "sparkles")
                     }
                     .buttonStyle(ProButtonStyle(big: true))
                 } else {
-                    Text("✨ Pro is active — enjoy your perks!")
+                    Label("Pro is active — enjoy your perks!", systemImage: "sparkles")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundStyle(Theme.proB)
                 }
@@ -68,8 +70,8 @@ struct ShopView: View {
     private func buy(_ item: ShopItem) {
         switch store.buy(item.id) {
         case .ok(let bought):     bus.say("Got it: \(bought.name)!")
-        case .insufficient:       bus.say("Not enough Dewdrops yet — keep logging! 💧")
-        case .needPro:            bus.say("That's a Pro item ✨")
+        case .insufficient:       bus.say("Not enough Dewdrops yet — keep logging!")
+        case .needPro:            bus.say("That's a Pro item")
         case .owned, .notFound:   break
         }
     }
@@ -135,7 +137,7 @@ private struct ShopCard: View {
                 .frame(width: 54, height: 54)
                 .overlay(RoundedRectangle(cornerRadius: 14).stroke(.black.opacity(0.06), lineWidth: 2))
         case .decor:
-            Text(item.emoji).font(.system(size: 44))
+            DecorArt(id: item.id, size: 60)
         }
     }
 
@@ -147,11 +149,14 @@ private struct ShopCard: View {
         } else if owned {
             Text("Owned ✓").font(.system(size: 13, weight: .bold, design: .rounded)).foregroundStyle(Theme.greenD)
         } else if locked {
-            Button("🔒 Pro") {}.buttonStyle(ProButtonStyle()).disabled(true).opacity(0.9)
+            Button {} label: { Label("Pro", systemImage: "lock.fill") }
+                .buttonStyle(ProButtonStyle()).disabled(true).opacity(0.9)
         } else {
             let affordable = store.state.dewdrops >= item.price
-            Button(action: onBuy) { Text("💧 \(item.price)") }
-                .buttonStyle(PrimaryButtonStyle(enabled: affordable))
+            Button(action: onBuy) {
+                Label("\(item.price)", systemImage: "drop.fill")
+            }
+            .buttonStyle(PrimaryButtonStyle(enabled: affordable))
         }
     }
 }
@@ -187,16 +192,19 @@ private struct SkinPreviewSheet: View {
                 Button("Equip") { store.equipSkin(item.id); bus.say("Equipped!"); dismiss() }
                     .buttonStyle(PrimaryButtonStyle(big: true))
             } else if locked {
-                Button("🔒 Pro item") {}.buttonStyle(ProButtonStyle(big: true)).disabled(true)
+                Button {} label: { Label("Pro item", systemImage: "lock.fill") }
+                    .buttonStyle(ProButtonStyle(big: true)).disabled(true)
             } else {
-                Button("Buy · 💧 \(item.price)") {
+                Button {
                     if case .ok(let bought) = store.buy(item.id) {
                         store.equipSkin(item.id)
                         bus.say("Got \(bought.name)!")
                         dismiss()
                     } else {
-                        bus.say("Not enough Dewdrops yet 💧")
+                        bus.say("Not enough Dewdrops yet")
                     }
+                } label: {
+                    Label("Buy · \(item.price)", systemImage: "drop.fill")
                 }
                 .buttonStyle(PrimaryButtonStyle(big: true, enabled: store.state.dewdrops >= item.price))
             }

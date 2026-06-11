@@ -79,27 +79,27 @@ enum GameData {
 
     static func item(_ id: String) -> ShopItem? { shop.first { $0.id == id } }
 
-    // MARK: Milestones / badges
+    // MARK: Milestones / badges (icons are SF Symbols)
     static let milestones: [Milestone] = [
-        Milestone(id: "first_log", label: "First Bite", icon: "🌱",
+        Milestone(id: "first_log", label: "First Bite", icon: "leaf.fill", tintHex: "5FA86A",
                   desc: "Logged your very first meal.",
                   check: { $0.stats.totalFoodsLogged >= 1 }),
-        Milestone(id: "week_streak", label: "Seven Sprouts", icon: "🔥",
+        Milestone(id: "week_streak", label: "Seven Sprouts", icon: "flame.fill", tintHex: "F4793B",
                   desc: "Logged 7 days in a row.",
                   check: { $0.streak.best >= 7 }),
-        Milestone(id: "month_streak", label: "Steady Gardener", icon: "🏆",
+        Milestone(id: "month_streak", label: "Steady Gardener", icon: "trophy.fill", tintHex: "E9B824",
                   desc: "Logged 30 days in a row.",
                   check: { $0.streak.best >= 30 }),
-        Milestone(id: "hundred", label: "Century Snacks", icon: "💯",
+        Milestone(id: "hundred", label: "Century Snacks", icon: "checkmark.seal.fill", tintHex: "9B7CD4",
                   desc: "Logged 100 foods total.",
                   check: { $0.stats.totalFoodsLogged >= 100 }),
-        Milestone(id: "water_day", label: "Well Watered", icon: "💧",
+        Milestone(id: "water_day", label: "Well Watered", icon: "drop.fill", tintHex: "4AA3DF",
                   desc: "Hit your water goal in a day.",
                   check: { $0.stats.waterGoalsHit >= 1 }),
-        Milestone(id: "explorer", label: "Curious Palate", icon: "🧭",
+        Milestone(id: "explorer", label: "Curious Palate", icon: "safari.fill", tintHex: "3BB3A9",
                   desc: "Tried 15 different foods.",
                   check: { $0.stats.uniqueFoods.count >= 15 }),
-        Milestone(id: "decorator", label: "Home Maker", icon: "🛋️",
+        Milestone(id: "decorator", label: "Home Maker", icon: "sofa.fill", tintHex: "B08054",
                   desc: "Bought your first decoration.",
                   check: { state in
                       state.owned.contains { id in item(id)?.type == .decor }
@@ -110,7 +110,7 @@ enum GameData {
     static let kindWords = [
         "Nice — your Sprout did a happy wiggle.",
         "Logged! Taking care of yourself counts.",
-        "Your Sprout nibbled along with you. 🌱",
+        "Your Sprout nibbled along with you.",
         "Every log is a little act of self-care.",
         "Sprout is content. So are we.",
         "That's the habit growing stronger.",

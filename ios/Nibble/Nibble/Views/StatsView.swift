@@ -20,8 +20,10 @@ struct StatsView: View {
                 weekChart
                 lifetime
                 badges
-                Button("⚙️ Settings") { showSettings = true }
-                    .buttonStyle(GhostButtonStyle(big: true))
+                Button { showSettings = true } label: {
+                    Label("Settings", systemImage: "gearshape.fill")
+                }
+                .buttonStyle(GhostButtonStyle(big: true))
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 96)
@@ -30,14 +32,22 @@ struct StatsView: View {
     }
 
     private var streakHero: some View {
-        VStack(spacing: 4) {
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
+        VStack(spacing: 6) {
+            Image(systemName: "flame.fill")
+                .font(.system(size: 30))
+                .foregroundStyle(.white)
+                .shadow(color: Color(hex: "F4793B").opacity(0.6), radius: 6)
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("\(store.state.streak.current)").font(.system(size: 48, weight: .heavy, design: .rounded))
-                Text("🔥").font(.system(size: 26))
+                Text("days").font(.system(size: 18, weight: .bold, design: .rounded)).opacity(0.9)
             }
-            Text("day logging streak").font(.system(size: 15, weight: .bold, design: .rounded))
-            Text("Best: \(store.state.streak.best) · Streak freezes left: \(store.state.streak.freezes)")
-                .font(.system(size: 12, design: .rounded)).opacity(0.9)
+            Text("logging streak").font(.system(size: 15, weight: .bold, design: .rounded))
+            HStack(spacing: 10) {
+                Label("Best \(store.state.streak.best)", systemImage: "rosette")
+                Label("\(store.state.streak.freezes) freeze\(store.state.streak.freezes == 1 ? "" : "s")", systemImage: "snowflake")
+            }
+            .font(.system(size: 12, weight: .semibold, design: .rounded)).opacity(0.92)
+            .padding(.top, 2)
         }
         .foregroundStyle(.white)
         .frame(maxWidth: .infinity)
@@ -79,7 +89,7 @@ struct StatsView: View {
                         .frame(maxWidth: .infinity)
                     }
                 }
-                Text("We celebrate the habit, not a number on a scale. 🌿")
+                Text("We celebrate the habit, not a number on a scale.")
                     .font(.system(size: 12, design: .rounded)).foregroundStyle(Theme.inkSoft)
             }
         }
@@ -118,8 +128,10 @@ struct StatsView: View {
                 LazyVGrid(columns: cols, spacing: 10) {
                     ForEach(GameData.milestones) { m in
                         let earned = store.state.earnedMilestones.contains(m.id)
-                        VStack(spacing: 4) {
-                            Text(earned ? m.icon : "🔒").font(.system(size: 26))
+                        VStack(spacing: 6) {
+                            IconChip(symbol: earned ? m.icon : "lock.fill",
+                                     tint: earned ? Color(hex: m.tintHex) : Color(hex: "B7C4BA"),
+                                     size: 38)
                             Text(m.label).font(.system(size: 10.5, weight: .bold, design: .rounded))
                                 .foregroundStyle(Theme.inkSoft).multilineTextAlignment(.center)
                         }
@@ -129,7 +141,7 @@ struct StatsView: View {
                             .fill(earned ? Color(hex: "FFF7E0") : Color(hex: "F3FAF4")))
                         .overlay(RoundedRectangle(cornerRadius: Theme.radiusSm)
                             .stroke(earned ? Theme.gold : .clear, lineWidth: 1.5))
-                        .opacity(earned ? 1 : 0.55)
+                        .opacity(earned ? 1 : 0.7)
                     }
                 }
             }

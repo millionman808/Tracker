@@ -74,8 +74,10 @@ struct LogView: View {
                     }
                 }
 
-                Button("Log it 🌱") { submit() }
-                    .buttonStyle(PrimaryButtonStyle(big: true))
+                Button { submit() } label: {
+                    Label("Log it", systemImage: "leaf.fill")
+                }
+                .buttonStyle(PrimaryButtonStyle(big: true))
             }
         }
     }
@@ -143,7 +145,7 @@ struct LogView: View {
     private func commit(_ food: Food) {
         let earned = store.addEntry(food)
         let word = GameData.kindWords.randomElement() ?? "Logged!"
-        bus.say("\(word) +\(earned) 💧")
+        bus.say("\(word) +\(earned) Dewdrops")
         bus.tab = .home   // bounce home so the Sprout's reaction is visible
     }
 }
@@ -159,12 +161,17 @@ private struct MealPicker: View {
                 Button {
                     meal = m
                 } label: {
-                    Text("\(m.icon) \(m.label)")
-                        .font(.system(size: 12.5, weight: .bold, design: .rounded))
-                        .foregroundStyle(selected ? Theme.greenD : Theme.inkSoft)
-                        .padding(.vertical, 8).padding(.horizontal, 10)
-                        .background(Capsule().fill(selected ? Theme.greenL : Color(hex: "EEF6F0")))
-                        .overlay(Capsule().stroke(selected ? Theme.green : .clear, lineWidth: 2))
+                    HStack(spacing: 4) {
+                        Image(systemName: m.symbol)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(selected ? Color(hex: m.tintHex) : Theme.inkSoft)
+                        Text(m.label)
+                    }
+                    .font(.system(size: 12.5, weight: .bold, design: .rounded))
+                    .foregroundStyle(selected ? Theme.greenD : Theme.inkSoft)
+                    .padding(.vertical, 8).padding(.horizontal, 9)
+                    .background(Capsule().fill(selected ? Theme.greenL : Color(hex: "EEF6F0")))
+                    .overlay(Capsule().stroke(selected ? Theme.green : .clear, lineWidth: 2))
                 }
                 .buttonStyle(.plain)
             }
@@ -185,7 +192,7 @@ private struct FoodRow: View {
         HStack(spacing: 0) {
             Button(action: onLog) {
                 HStack(spacing: 12) {
-                    Text(food.meal.icon).font(.system(size: 22))
+                    IconChip(symbol: food.meal.symbol, tint: Color(hex: food.meal.tintHex), size: 34)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(food.name).font(.system(size: 15, weight: .bold, design: .rounded)).foregroundStyle(Theme.ink)
                         Text(calLine).font(.system(size: 12, design: .rounded)).foregroundStyle(Theme.inkSoft)

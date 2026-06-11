@@ -63,8 +63,9 @@ struct TodayView: View {
             let sub = items.reduce(0) { $0 + $1.cal }
             Card(padding: 14) {
                 VStack(spacing: 8) {
-                    HStack {
-                        Text("\(meal.icon) \(meal.label)").font(.system(size: 15, weight: .bold, design: .rounded))
+                    HStack(spacing: 8) {
+                        IconChip(symbol: meal.symbol, tint: Color(hex: meal.tintHex), size: 26)
+                        Text(meal.label).font(.system(size: 15, weight: .bold, design: .rounded))
                         Spacer()
                         Text("\(sub) kcal").font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundStyle(Theme.inkSoft)
                     }
@@ -82,36 +83,42 @@ struct TodayView: View {
     private var waterCard: some View {
         Card {
             VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text("💧 Water").font(.system(size: 15, weight: .bold, design: .rounded))
+                HStack(spacing: 8) {
+                    IconChip(symbol: "drop.fill", tint: Theme.drop, size: 26)
+                    Text("Water").font(.system(size: 15, weight: .bold, design: .rounded))
                     Spacer()
                     let extra = max(0, record.water - store.state.water.goal)
-                    Text("\(record.water)/\(store.state.water.goal) cups\(extra > 0 ? " · +\(extra) 🌟" : "")")
+                    Text("\(record.water)/\(store.state.water.goal) cups\(extra > 0 ? " · +\(extra) extra" : "")")
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                         .foregroundStyle(extra > 0 ? Theme.gold : Theme.inkSoft)
                 }
                 let cols = [GridItem(.adaptive(minimum: 40), spacing: 6)]
                 LazyVGrid(columns: cols, spacing: 6) {
                     ForEach(0..<store.state.water.goal, id: \.self) { i in
+                        let filled = i < record.water
                         Button {
                             let earned = store.setWater(to: i + 1)
-                            if earned > 0 { bus.say("+\(earned) 💧") }
+                            if earned > 0 { bus.say("+\(earned) Dewdrops") }
                         } label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 10)
-                                    .fill(i < record.water ? Color(hex: "E2F4FB") : Color(hex: "F3FAF4"))
+                                    .fill(filled ? Color(hex: "E2F4FB") : Color(hex: "F3FAF4"))
                                     .overlay(RoundedRectangle(cornerRadius: 10)
-                                        .stroke(i < record.water ? Color(hex: "BFE6F5") : Theme.greenL, lineWidth: 2))
-                                Text(i < record.water ? "💧" : "○").font(.system(size: 16)).foregroundStyle(Theme.inkSoft)
+                                        .stroke(filled ? Color(hex: "BFE6F5") : Theme.greenL, lineWidth: 2))
+                                Image(systemName: filled ? "drop.fill" : "drop")
+                                    .font(.system(size: 15))
+                                    .foregroundStyle(filled ? Theme.drop : Color(hex: "C2D4C6"))
                             }
                             .frame(height: 38)
                         }
                         .buttonStyle(.plain)
                     }
                 }
-                Button("＋ Add a cup") {
+                Button {
                     let earned = store.addWater(1)
-                    if earned > 0 { bus.say("Sip! +\(earned) 💧") }
+                    if earned > 0 { bus.say("Sip! +\(earned) Dewdrops") }
+                } label: {
+                    Label("Add a cup", systemImage: "plus")
                 }
                 .buttonStyle(GhostButtonStyle())
             }

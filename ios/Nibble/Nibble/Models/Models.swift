@@ -23,12 +23,23 @@ enum Meal: String, Codable, CaseIterable, Identifiable {
         }
     }
 
-    var icon: String {
+    /// SF Symbol for this meal.
+    var symbol: String {
         switch self {
-        case .breakfast: return "🌅"
-        case .lunch:     return "🥪"
-        case .dinner:    return "🍽️"
-        case .snack:     return "🍎"
+        case .breakfast: return "sun.horizon.fill"
+        case .lunch:     return "takeoutbag.and.cup.and.straw.fill"
+        case .dinner:    return "fork.knife"
+        case .snack:     return "carrot.fill"
+        }
+    }
+
+    /// Tint hex for this meal's icon chip.
+    var tintHex: String {
+        switch self {
+        case .breakfast: return "F4A259"
+        case .lunch:     return "5FA8D3"
+        case .dinner:    return "9B7CD4"
+        case .snack:     return "E76F51"
         }
     }
 
@@ -116,7 +127,8 @@ struct ShopTheme: Identifiable, Hashable {
 struct Milestone: Identifiable {
     let id: String
     let label: String
-    let icon: String
+    let icon: String        // SF Symbol name
+    let tintHex: String     // chip color
     let desc: String
     /// Returns true when this milestone has been achieved for the given state.
     let check: (SaveState) -> Bool

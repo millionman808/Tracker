@@ -15,6 +15,7 @@ import SwiftUI
 
 struct SproutSkin {
     let body: Color
+    let bodyLight: Color
     let bodyDark: Color
     let cheek: Color
     let topper: Topper
@@ -24,19 +25,24 @@ struct SproutSkin {
     static func forID(_ id: String) -> SproutSkin {
         switch id {
         case "skin_cactus":
-            return SproutSkin(body: Color(hex: "5FA86A"), bodyDark: Color(hex: "4E8F58"),
+            return SproutSkin(body: Color(hex: "5FA86A"), bodyLight: Color(hex: "78BC82"),
+                              bodyDark: Color(hex: "4E8F58"),
                               cheek: Color(hex: "F0B3A0"), topper: .flower)
         case "skin_mushroom":
-            return SproutSkin(body: Color(hex: "E8D9C5"), bodyDark: Color(hex: "D4C3AB"),
+            return SproutSkin(body: Color(hex: "E8D9C5"), bodyLight: Color(hex: "F4EADC"),
+                              bodyDark: Color(hex: "D4C3AB"),
                               cheek: Color(hex: "F4A6B8"), topper: .cap)
         case "skin_sunflower":
-            return SproutSkin(body: Color(hex: "F4C542"), bodyDark: Color(hex: "DFAF2E"),
+            return SproutSkin(body: Color(hex: "F4C542"), bodyLight: Color(hex: "FAD96E"),
+                              bodyDark: Color(hex: "DFAF2E"),
                               cheek: Color(hex: "E89B6C"), topper: .petals)
         case "skin_cherry":
-            return SproutSkin(body: Color(hex: "E06377"), bodyDark: Color(hex: "C95065"),
+            return SproutSkin(body: Color(hex: "E06377"), bodyLight: Color(hex: "EC8194"),
+                              bodyDark: Color(hex: "C95065"),
                               cheek: Color(hex: "FFD1DC"), topper: .stem)
         default:
-            return SproutSkin(body: Color(hex: "7BC47F"), bodyDark: Color(hex: "69B06E"),
+            return SproutSkin(body: Color(hex: "7BC47F"), bodyLight: Color(hex: "94D498"),
+                              bodyDark: Color(hex: "69B06E"),
                               cheek: Color(hex: "F4A6B8"), topper: .leaf)
         }
     }
@@ -156,12 +162,24 @@ struct SproutView: View {
             arm(t: t, motion: m, left: true)
             arm(t: t, motion: m, left: false)
 
-            SproutBody().fill(skin.body)
-            SproutBody().fill(Color.white.opacity(0.14)).scaleEffect(0.78)
+            // body: lit from above, shaded at the base, glossy highlight
+            SproutBody().fill(
+                LinearGradient(colors: [skin.bodyLight, skin.body],
+                               startPoint: .top, endPoint: .bottom))
+            SproutBody().fill(
+                LinearGradient(stops: [
+                    .init(color: .clear, location: 0.55),
+                    .init(color: Color.black.opacity(0.10), location: 1.0)
+                ], startPoint: .top, endPoint: .bottom))
+            Ellipse()
+                .fill(Color.white.opacity(0.30))
+                .frame(width: 34, height: 18)
+                .rotationEffect(.degrees(-24))
+                .position(x: 74, y: 82)
 
             // cheeks
-            Circle().fill(skin.cheek).opacity(0.8).frame(width: 20).position(x: 68, y: 132)
-            Circle().fill(skin.cheek).opacity(0.8).frame(width: 20).position(x: 132, y: 132)
+            Circle().fill(skin.cheek).opacity(0.8).frame(width: 20).position(x: 66, y: 134)
+            Circle().fill(skin.cheek).opacity(0.8).frame(width: 20).position(x: 134, y: 134)
 
             face(t: t)
         }
@@ -218,11 +236,22 @@ struct SproutView: View {
         }
     }
 
+    /// Big friendly eyes: white sclera, dark pupil, sparkle catchlight.
     private func dotEyes(_ ink: Color) -> some View {
         Group {
-            Circle().fill(ink).frame(width: 7).position(x: 84, y: 108)
-            Circle().fill(ink).frame(width: 7).position(x: 116, y: 108)
+            bigEye(ink, x: 83, y: 109)
+            bigEye(ink, x: 117, y: 109)
         }
+    }
+
+    private func bigEye(_ ink: Color, x: CGFloat, y: CGFloat) -> some View {
+        ZStack {
+            Ellipse().fill(.white).frame(width: 17, height: 20)
+            Ellipse().fill(ink).frame(width: 11, height: 13).offset(y: 1.5)
+            Circle().fill(.white).frame(width: 4.5).offset(x: 2.4, y: -2.2)
+            Circle().fill(.white.opacity(0.6)).frame(width: 2).offset(x: -2.2, y: 2.4)
+        }
+        .position(x: x, y: y)
     }
 
     private func closedEyes(_ ink: Color) -> some View {
@@ -248,24 +277,28 @@ struct SproutView: View {
                 .opacity(1 - drift2)
                 .position(x: 158 + CGFloat(drift2 * 10), y: 64 - CGFloat(drift2 * 26))
         case .celebrating:
-            sparkle("✨", x: 38, y: 58, t: t, phase: 0)
-            sparkle("⭐️", x: 100, y: 34, t: t, phase: 1.1)
-            sparkle("✨", x: 162, y: 66, t: t, phase: 2.2)
+            sparkle(x: 38, y: 58, t: t, phase: 0, size: 16)
+            sparkle(x: 100, y: 32, t: t, phase: 1.1, size: 20)
+            sparkle(x: 162, y: 66, t: t, phase: 2.2, size: 16)
         case .eating:
             // a leaf snack bobbing toward the mouth
-            Text("🍃").font(.system(size: 18))
-                .rotationEffect(.degrees(-14 * sin(t * 5)))
-                .position(x: 126 - CGFloat(5 * abs(sin(t * 5))), y: 124)
+            Leaf().fill(Color(hex: "5FB368").gradient)
+                .frame(width: 18, height: 13)
+                .rotationEffect(.degrees(-30 - 14 * sin(t * 5)))
+                .position(x: 128 - CGFloat(5 * abs(sin(t * 5))), y: 122)
         default:
             EmptyView()
         }
     }
 
-    private func sparkle(_ s: String, x: CGFloat, y: CGFloat, t: Double, phase: Double) -> some View {
+    private func sparkle(x: CGFloat, y: CGFloat, t: Double, phase: Double, size: CGFloat) -> some View {
         let pulse = abs(sin(t * 3 + phase))
-        return Text(s).font(.system(size: 17))
+        return SparkleShape()
+            .fill(Color(hex: "F4C542").gradient)
+            .frame(width: size, height: size)
             .opacity(0.25 + 0.75 * pulse)
             .scaleEffect(0.7 + 0.4 * pulse)
+            .rotationEffect(.degrees(12 * sin(t * 1.5 + phase)))
             .position(x: x, y: y)
     }
 
