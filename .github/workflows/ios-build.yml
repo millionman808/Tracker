@@ -59,6 +59,12 @@ jobs:
           ( xcrun simctl io "$UDID" recordVideo --codec h264 capture/nibble-running.mp4 & \
             VID=$!; sleep 8; kill -INT "$VID"; wait "$VID" ) || true
           ls -la capture
+          # emit a small base64 thumbnail into the log so it can be inspected
+          # from environments that cannot download artifacts
+          sips --resampleWidth 420 capture/nibble-running.png --out capture/thumb.png >/dev/null || true
+          echo "===THUMB_BASE64_BEGIN==="
+          base64 -i capture/thumb.png
+          echo "===THUMB_BASE64_END==="
 
       - name: Upload simulator capture
         uses: actions/upload-artifact@v4
