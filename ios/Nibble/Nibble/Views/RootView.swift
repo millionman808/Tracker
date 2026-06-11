@@ -110,6 +110,8 @@ private struct TopBar: View {
 
 private struct TabBar: View {
     @Binding var selection: Tab
+    @Namespace private var pill
+
     var body: some View {
         HStack(alignment: .bottom) {
             item(.home, "house.fill", "Home")
@@ -119,50 +121,63 @@ private struct TabBar: View {
             item(.stats, "chart.bar.fill", "Stats")
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 8)
+        .padding(.top, 10)
         .padding(.horizontal, 8)
         .background(
-            Theme.card.opacity(0.97)
-                .overlay(Rectangle().frame(height: 1).foregroundStyle(Color(hex: "E7F0E8")), alignment: .top)
-                .ignoresSafeArea(edges: .bottom)
+            ZStack {
+                Rectangle().fill(.ultraThinMaterial)
+                Theme.card.opacity(0.55)
+            }
+            .overlay(Rectangle().frame(height: 1).foregroundStyle(Color(hex: "E7F0E8")), alignment: .top)
+            .ignoresSafeArea(edges: .bottom)
         )
     }
 
     private func item(_ tab: Tab, _ symbol: String, _ label: String) -> some View {
-        Button {
-            selection = tab
+        let active = selection == tab
+        return Button {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) { selection = tab }
         } label: {
             VStack(spacing: 3) {
-                Image(systemName: symbol)
-                    .font(.system(size: 19))
-                    .scaleEffect(selection == tab ? 1.1 : 1)
+                ZStack {
+                    if active {
+                        Capsule()
+                            .fill(Theme.greenL)
+                            .frame(width: 46, height: 28)
+                            .matchedGeometryEffect(id: "tab-pill", in: pill)
+                    }
+                    Image(systemName: symbol)
+                        .font(.system(size: 18))
+                        .scaleEffect(active ? 1.08 : 1)
+                }
+                .frame(height: 28)
                 Text(label).font(.system(size: 10, weight: .bold, design: .rounded))
             }
-            .foregroundStyle(selection == tab ? Theme.greenD : Theme.inkSoft)
+            .foregroundStyle(active ? Theme.greenD : Theme.inkSoft)
             .frame(maxWidth: .infinity)
             .padding(.bottom, 4)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selection)
     }
 
     private var centerButton: some View {
         Button {
-            selection = .log
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) { selection = .log }
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 26, weight: .bold))
                 .foregroundStyle(.white)
-                .frame(width: 56, height: 56)
+                .frame(width: 58, height: 58)
                 .background(
                     Circle().fill(LinearGradient(colors: [Theme.green, Theme.greenD],
                                                  startPoint: .topLeading, endPoint: .bottomTrailing))
                 )
+                .overlay(Circle().stroke(.white.opacity(0.5), lineWidth: 2))
                 .shadow(color: Theme.green.opacity(0.45), radius: 10, y: 4)
         }
         .buttonStyle(.plain)
-        .offset(y: -16)
+        .offset(y: -18)
         .frame(maxWidth: .infinity)
     }
 }

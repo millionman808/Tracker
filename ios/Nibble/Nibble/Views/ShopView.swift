@@ -128,7 +128,7 @@ private struct ShopCard: View {
     @ViewBuilder private var preview: some View {
         switch item.type {
         case .skin:
-            SproutView(skinID: item.id, mood: .happy, size: 64)
+            SproutView(skinID: item.id, mood: .happy, size: 64, animated: false)
         case .wallpaper:
             RoundedRectangle(cornerRadius: 14)
                 .fill(Color(hex: item.colorHex ?? "FFFFFF"))
